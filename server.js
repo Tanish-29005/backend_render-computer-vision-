@@ -47,9 +47,27 @@ const s3Client = new S3Client({
   forcePathStyle: true,
 });
 
-// Initialize Google Vision client
-const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
-const client = new vision.ImageAnnotatorClient(credentials);
+// Initialize Google Vision client - FIXED INITIALIZATION
+let client;
+try {
+  // Check which format the credentials are in
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+    // If using the full JSON string in an environment variable
+    const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+    client = new vision.ImageAnnotatorClient({ credentials });
+    console.log("✅ Vision API client initialized using JSON credentials");
+  } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    // If using a path to a JSON file
+    client = new vision.ImageAnnotatorClient();
+    console.log("✅ Vision API client initialized using credentials file path");
+  } else {
+    console.error("❌ Missing Google Vision API credentials");
+    process.exit(1);
+  }
+} catch (error) {
+  console.error("❌ Failed to initialize Vision API client:", error);
+  process.exit(1);
+}
 
 // Add bucket verification before starting server
 async function initializeServer() {
