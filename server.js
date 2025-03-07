@@ -48,7 +48,8 @@ const s3Client = new S3Client({
 });
 
 // Initialize Google Vision client
-const client = new vision.ImageAnnotatorClient();
+const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+const client = new vision.ImageAnnotatorClient(credentials);
 
 // Add bucket verification before starting server
 async function initializeServer() {
